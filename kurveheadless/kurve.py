@@ -22,9 +22,7 @@ class Kurve:
         self.driver = webdriver.Chrome(chrome_options=driver_options)
 
     def load_page(self):
-        self.print('page loaded')
-        self.driver.get('https://achtungkurve.com')
-        self.driver.execute_script("window.localStorage.setItem('kurve.privacy-policy-accepted','yes');")
+        self.print('load page')
         self.driver.get('https://achtungkurve.com/headless')
 
     def send_key(self, key):
@@ -79,6 +77,23 @@ class Kurve:
 
     def get_players(self):
         return self.driver.execute_script("return Kurve.Game.players;")
+
+    def get_curves(self):
+        return self.driver.execute_script("return Kurve.Game.curves;")
+
+    def get_curve_by_player(self, player_id):
+        curves = self.get_curves()
+
+        for curve in curves:
+            if curve['playerId'] == player_id:
+                return {
+                    'player_id': player_id,
+                    'angle': curve['angle'],
+                    'positionX': curve['positionX'],
+                    'positionY': curve['positionY'],
+                }
+
+        return None
 
     def get_player_scores(self):
         scores = {}
