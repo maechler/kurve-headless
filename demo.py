@@ -1,56 +1,69 @@
 from selenium import webdriver
 from kurveheadless.kurve import Kurve
+import argparse
 
-options = webdriver.ChromeOptions()
-options.binary_location = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-options.add_argument('window-size=1200x800')
-options.add_argument('headless')
 
-kurve = Kurve(options)
+def run_demo(binary_location):
+    options = webdriver.ChromeOptions()
+    options.binary_location = binary_location
+    options.add_argument('window-size=1200x800')
+    options.add_argument('headless')
 
-try:
-    kurve.load_page()
-    kurve.add_player('red')
-    kurve.add_player('blue')
-    kurve.enter_game()
+    kurve = Kurve(options)
 
-    turn_left = False
-    turn_right = False
+    try:
+        kurve.load_page()
+        kurve.add_player('red')
+        kurve.add_player('blue')
+        kurve.enter_game()
 
-    while not kurve.is_game_over():
-        kurve.start_round()
+        turn_left = False
+        turn_right = False
 
-        while kurve.is_running():
-            if turn_left:
-                kurve.send_key(kurve.get_player_key('red', 'left'))
-            elif turn_right:
-                kurve.send_key(kurve.get_player_key('red', 'right'))
+        while not kurve.is_game_over():
+            kurve.start_round()
 
-            if kurve.get_frame_id() > 50:
-                turn_left = True
+            while kurve.is_running():
+                if turn_left:
+                    kurve.send_key(kurve.get_player_key('red', 'left'))
+                elif turn_right:
+                    kurve.send_key(kurve.get_player_key('red', 'right'))
 
-            if kurve.get_frame_id() > 150:
-                turn_left = False
-                turn_right = True
+                if kurve.get_frame_id() > 50:
+                    turn_left = True
 
-            if kurve.get_frame_id() > 200:
-                turn_right = False
+                if kurve.get_frame_id() > 150:
+                    turn_left = False
+                    turn_right = True
 
-            kurve.next_frame()
+                if kurve.get_frame_id() > 200:
+                    turn_right = False
 
-        print('round ' + str(kurve.round_count) + ': ' + kurve.print_player_scores())
+                kurve.next_frame()
 
-        kurve.save_screenshot('out/screenshot_' + str(kurve.round_count) + '.png')
+            print('round ' + str(kurve.round_count) + ': ' + kurve.print_player_scores())
 
-    winner = ''
-    winnerPoints = 0
-    for player, points in kurve.get_player_scores().items():
-        if points > winnerPoints:
-            winner = player
-            winnerPoints = points
+            kurve.save_screenshot('out/screenshot_' + str(kurve.round_count) + '.png')
 
-    print('Game over, the winner is: ' + winner)
+        winner = ''
+        winner_points = 0
+        for player, points in kurve.get_player_scores().items():
+            if points > winner_points:
+                winner = player
+                winner_points = points
 
-    kurve.close()
-except:
-    kurve.close()
+        print('Game over, the winner is: ' + winner)
+
+        kurve.close()
+    except:
+        kurve.close()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-b', '--binary_location', help='The location of your chrome headless binaries.', type=str, default='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome')
+
+    args = parser.parse_args()
+
+    run_demo(args.binary_location)
