@@ -1,6 +1,6 @@
 # Kurve headless
 
-This is an experimental project with the goal to introduce AI bots to achtungkurve.com.
+This is an experimental project with the goal to introduce AI bots to [achtungkurve.com](https://achtungkurve.com).
 
 ## Installation
 
